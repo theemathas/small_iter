@@ -14,21 +14,21 @@ trait Sealed {}
 /// An extension trait that provides the `into_small_iter` method on boxed
 /// slices.
 #[allow(private_bounds)]
-pub trait BoxedSliceExt: Sealed {
+pub trait IntoSmallIterExt: Sealed {
     /// The type of the elements in the boxed slice.
     type Item;
 
-    /// Consumes the boxed slice and returns an [`IntoSmallIter`] that moves out
-    /// of it.
-    fn into_small_iter(self) -> IntoSmallIter<Self::Item>;
+    /// Consumes the boxed slice and returns an [`SmallIter`] that moves out of
+    /// it.
+    fn into_small_iter(self) -> SmallIter<Self::Item>;
 }
 
 impl<T> Sealed for Box<[T]> {}
 
-impl<T> BoxedSliceExt for Box<[T]> {
+impl<T> IntoSmallIterExt for Box<[T]> {
     type Item = T;
 
-    fn into_small_iter(self) -> IntoSmallIter<T> {
+    fn into_small_iter(self) -> SmallIter<T> {
         // SAFETY: the slice is owned by `self`, so it's safe to move out of it.
         let slice_ptr: *mut [T] = Box::into_raw(self);
         let (start, end) = if const { size_of::<T>() == 0 } {
@@ -48,7 +48,7 @@ impl<T> BoxedSliceExt for Box<[T]> {
                 )
             }
         };
-        IntoSmallIter {
+        SmallIter {
             elements_start: start,
             allocation_start: start,
             end,
@@ -59,14 +59,14 @@ impl<T> BoxedSliceExt for Box<[T]> {
 
 /// A 3-pointer iterator that moves out of a `Vec<T>` or `Box<[T]>`
 ///
-/// This struct is created by [`BoxedSliceExt::into_small_iter`]
+/// This struct is created by [`IntoSmallIterExt::into_small_iter`]
 ///
 /// Unlike [`std::vec::IntoIter`], which is represented as 4 pointers,
 /// this iterator is represented as 3 pointers.
 /// In exchange, it does not implement [`DoubleEndedIterator`].
 ///
 /// See the [crate-level documentation](crate) for more details.
-pub struct IntoSmallIter<T> {
+pub struct SmallIter<T> {
     /*
     Similarly to how `std::vec::IntoIter` is implemented,
     we store things differently depending on whether
@@ -87,7 +87,7 @@ pub struct IntoSmallIter<T> {
     _phantom: PhantomData<T>,
 }
 
-impl<T> IntoSmallIter<T> {
+impl<T> SmallIter<T> {
     /// Returns the remaining elements in the iterator as a slice.
     pub fn as_slice(&self) -> &[T] {
         unsafe { slice::from_raw_parts(self.elements_start.as_ptr(), self.elements_len()) }
@@ -120,10 +120,10 @@ impl<T> IntoSmallIter<T> {
     }
 }
 
-unsafe impl<T: Send> Send for IntoSmallIter<T> {}
-unsafe impl<T: Sync> Sync for IntoSmallIter<T> {}
+unsafe impl<T: Send> Send for SmallIter<T> {}
+unsafe impl<T: Sync> Sync for SmallIter<T> {}
 
-impl<T> Iterator for IntoSmallIter<T> {
+impl<T> Iterator for SmallIter<T> {
     type Item = T;
 
     #[inline]
@@ -157,11 +157,11 @@ impl<T> Iterator for IntoSmallIter<T> {
     }
 }
 
-impl<T> ExactSizeIterator for IntoSmallIter<T> {}
+impl<T> ExactSizeIterator for SmallIter<T> {}
 
-impl<T> FusedIterator for IntoSmallIter<T> {}
+impl<T> FusedIterator for SmallIter<T> {}
 
-impl<T: Debug> Debug for IntoSmallIter<T> {
+impl<T: Debug> Debug for SmallIter<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_tuple("IntoSmallIter")
             .field(&self.as_slice())
@@ -169,33 +169,33 @@ impl<T: Debug> Debug for IntoSmallIter<T> {
     }
 }
 
-impl<T> AsRef<[T]> for IntoSmallIter<T> {
+impl<T> AsRef<[T]> for SmallIter<T> {
     fn as_ref(&self) -> &[T] {
         self.as_slice()
     }
 }
 
-impl<T> AsMut<[T]> for IntoSmallIter<T> {
+impl<T> AsMut<[T]> for SmallIter<T> {
     fn as_mut(&mut self) -> &mut [T] {
         self.as_mut_slice()
     }
 }
 
-impl<T> Default for IntoSmallIter<T> {
+impl<T> Default for SmallIter<T> {
     fn default() -> Self {
         <Box<[T]>>::default().into_small_iter()
     }
 }
 
-impl<T: Clone> Clone for IntoSmallIter<T> {
+impl<T: Clone> Clone for SmallIter<T> {
     fn clone(&self) -> Self {
         <Box<[T]>>::from(self.as_slice()).into_small_iter()
     }
 }
 
-impl<T> Drop for IntoSmallIter<T> {
+impl<T> Drop for SmallIter<T> {
     fn drop(&mut self) {
-        struct DropGuard<'a, T>(&'a mut IntoSmallIter<T>);
+        struct DropGuard<'a, T>(&'a mut SmallIter<T>);
 
         impl<T> Drop for DropGuard<'_, T> {
             // Drop the Box allocation, but not the contained elements in the slice.

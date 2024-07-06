@@ -13,8 +13,8 @@ However, storing a large collection of `vec::IntoIter` iterators is suboptimal.
 This is because `vec::IntoIter` is represented as 4 pointers, which is one more
 than strictly necessary.
 
-This crate provides an `IntoSmallIter` type, which is represented as 3 pointers.
-In exchange for this smaller size, this type doesn't implement
+This crate provides an `SmallIter` type, which is represented as 3 pointers. In
+exchange for this smaller size, this type doesn't implement
 `DoubleEndedIterator`
 
 ## Usage
