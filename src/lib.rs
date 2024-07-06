@@ -2,6 +2,7 @@
 
 use core::slice;
 use std::{
+    iter::FusedIterator,
     marker::PhantomData,
     mem::{size_of, ManuallyDrop},
     ptr::{self, NonNull},
@@ -116,6 +117,9 @@ impl<T> IntoSmallIter<T> {
     }
 }
 
+unsafe impl<T: Send> Send for IntoSmallIter<T> {}
+unsafe impl<T: Sync> Sync for IntoSmallIter<T> {}
+
 impl<T> Iterator for IntoSmallIter<T> {
     type Item = T;
 
@@ -145,6 +149,34 @@ impl<T> Iterator for IntoSmallIter<T> {
     }
 
     // TODO implement other methods
+}
+
+impl<T> ExactSizeIterator for IntoSmallIter<T> {}
+
+impl<T> FusedIterator for IntoSmallIter<T> {}
+
+impl<T> AsRef<[T]> for IntoSmallIter<T> {
+    fn as_ref(&self) -> &[T] {
+        self.as_slice()
+    }
+}
+
+impl<T> AsMut<[T]> for IntoSmallIter<T> {
+    fn as_mut(&mut self) -> &mut [T] {
+        self.as_mut_slice()
+    }
+}
+
+impl<T> Default for IntoSmallIter<T> {
+    fn default() -> Self {
+        <Box<[T]>>::default().into_small_iter()
+    }
+}
+
+impl<T: Clone> Clone for IntoSmallIter<T> {
+    fn clone(&self) -> Self {
+        <Box<[T]>>::from(self.as_slice()).into_small_iter()
+    }
 }
 
 impl<T> Drop for IntoSmallIter<T> {
