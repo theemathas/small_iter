@@ -1,4 +1,4 @@
-//! TODO write crate-level docs
+#![doc = include_str!("../README.md")]
 
 use core::slice;
 use std::{
@@ -57,13 +57,15 @@ impl<T> BoxedSliceExt for Box<[T]> {
     }
 }
 
-/// An iterator that moves out of a boxed slice.
+/// A 3-pointer iterator that moves out of a `Vec<T>` or `Box<[T]>`
 ///
 /// This struct is created by [`BoxedSliceExt::into_small_iter`]
 ///
 /// Unlike [`std::vec::IntoIter`], which is represented as 4 pointers,
 /// this iterator is represented as 3 pointers.
 /// In exchange, it does not implement [`DoubleEndedIterator`].
+///
+/// See the [crate-level documentation](crate) for more details.
 pub struct IntoSmallIter<T> {
     /*
     Similarly to how `std::vec::IntoIter` is implemented,
@@ -91,6 +93,7 @@ impl<T> IntoSmallIter<T> {
         unsafe { slice::from_raw_parts(self.elements_start.as_ptr(), self.elements_len()) }
     }
 
+    /// Returns the remaining elements in the iterator as a mutable slice.
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         unsafe { slice::from_raw_parts_mut(self.elements_start.as_ptr(), self.elements_len()) }
     }
