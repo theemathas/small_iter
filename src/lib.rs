@@ -2,6 +2,7 @@
 
 use core::slice;
 use std::{
+    fmt::Debug,
     iter::FusedIterator,
     marker::PhantomData,
     mem::{size_of, ManuallyDrop},
@@ -63,7 +64,6 @@ impl<T> BoxedSliceExt for Box<[T]> {
 /// Unlike [`std::vec::IntoIter`], which is represented as 4 pointers,
 /// this iterator is represented as 3 pointers.
 /// In exchange, it does not implement [`DoubleEndedIterator`].
-#[derive(Debug)]
 pub struct IntoSmallIter<T> {
     /*
     Similarly to how `std::vec::IntoIter` is implemented,
@@ -157,6 +157,14 @@ impl<T> Iterator for IntoSmallIter<T> {
 impl<T> ExactSizeIterator for IntoSmallIter<T> {}
 
 impl<T> FusedIterator for IntoSmallIter<T> {}
+
+impl<T: Debug> Debug for IntoSmallIter<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("IntoSmallIter")
+            .field(&self.as_slice())
+            .finish()
+    }
+}
 
 impl<T> AsRef<[T]> for IntoSmallIter<T> {
     fn as_ref(&self) -> &[T] {
