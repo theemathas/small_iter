@@ -1,5 +1,5 @@
 [package]
-name = "boxed_slice_iter"
+name = "boxed_slice_into_small_iter"
 version = "0.1.0"
 edition = "2021"
 
