@@ -11,19 +11,23 @@ use std::{
 
 trait Sealed {}
 
-/// An extension trait that provides the `into_small_iter` method on boxed
-/// slices.
+/// An extension trait that provides the `into_small_iter` method on `Vec<T>`
+/// and `Box<[T]>`.
+///
+/// Note that for `Vec<T>`, if there is excess capacity in the vector, calling
+/// `into_small_iter` will first shrink the allocation to fit the existing
+/// elements. Depending on the allocator, this may reallocate.
 #[allow(private_bounds)]
 pub trait IntoSmallIterExt: Sealed {
-    /// The type of the elements in the boxed slice.
+    /// The type of the elements.
     type Item;
 
-    /// Consumes the boxed slice and returns an [`SmallIter`] that moves out of
-    /// it.
+    /// Consumes `self` and returns an [`SmallIter`] that moves out of it.
     fn into_small_iter(self) -> SmallIter<Self::Item>;
 }
 
 impl<T> Sealed for Box<[T]> {}
+impl<T> Sealed for Vec<T> {}
 
 impl<T> IntoSmallIterExt for Box<[T]> {
     type Item = T;
@@ -54,6 +58,14 @@ impl<T> IntoSmallIterExt for Box<[T]> {
             end,
             _phantom: PhantomData,
         }
+    }
+}
+
+impl<T> IntoSmallIterExt for Vec<T> {
+    type Item = T;
+
+    fn into_small_iter(self) -> SmallIter<T> {
+        self.into_boxed_slice().into_small_iter()
     }
 }
 
