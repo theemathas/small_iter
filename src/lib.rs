@@ -1,5 +1,6 @@
 //! TODO write crate-level docs
 
+use core::slice;
 use std::{
     marker::PhantomData,
     mem::{size_of, ManuallyDrop},
@@ -84,6 +85,15 @@ pub struct IntoSmallIter<T> {
 }
 
 impl<T> IntoSmallIter<T> {
+    /// Returns the remaining elements in the iterator as a slice.
+    pub fn as_slice(&self) -> &[T] {
+        unsafe { slice::from_raw_parts(self.elements_start.as_ptr(), self.elements_len()) }
+    }
+
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        unsafe { slice::from_raw_parts_mut(self.elements_start.as_ptr(), self.elements_len()) }
+    }
+
     /// Returns the number of elements remaining in the iterator.
     fn elements_len(&self) -> usize {
         if const { size_of::<T>() == 0 } {
@@ -175,16 +185,22 @@ mod tests {
         let s: Box<[Box<i32>]> = Box::new([Box::new(1), Box::new(2), Box::new(3)]);
         let mut iter = s.into_small_iter();
         assert_eq!(iter.size_hint(), (3, Some(3)));
+        assert_eq!(iter.as_slice(), &[Box::new(1), Box::new(2), Box::new(3)]);
         assert_eq!(iter.next(), Some(Box::new(1)));
         assert_eq!(iter.size_hint(), (2, Some(2)));
+        assert_eq!(iter.as_slice(), &[Box::new(2), Box::new(3)]);
         assert_eq!(iter.next(), Some(Box::new(2)));
         assert_eq!(iter.size_hint(), (1, Some(1)));
+        assert_eq!(iter.as_slice(), &[Box::new(3)]);
         assert_eq!(iter.next(), Some(Box::new(3)));
         assert_eq!(iter.size_hint(), (0, Some(0)));
+        assert_eq!(iter.as_slice(), &[]);
         assert_eq!(iter.next(), None);
         assert_eq!(iter.size_hint(), (0, Some(0)));
+        assert_eq!(iter.as_slice(), &[]);
         assert_eq!(iter.next(), None);
         assert_eq!(iter.size_hint(), (0, Some(0)));
+        assert_eq!(iter.as_slice(), &[]);
     }
 
     #[test]
@@ -201,16 +217,22 @@ mod tests {
         let s: Box<[()]> = Box::new([(); 3]);
         let mut iter = s.into_small_iter();
         assert_eq!(iter.size_hint(), (3, Some(3)));
+        assert_eq!(iter.as_slice(), &[(), (), ()]);
         assert_eq!(iter.next(), Some(()));
         assert_eq!(iter.size_hint(), (2, Some(2)));
+        assert_eq!(iter.as_slice(), &[(), ()]);
         assert_eq!(iter.next(), Some(()));
         assert_eq!(iter.size_hint(), (1, Some(1)));
+        assert_eq!(iter.as_slice(), &[()]);
         assert_eq!(iter.next(), Some(()));
         assert_eq!(iter.size_hint(), (0, Some(0)));
+        assert_eq!(iter.as_slice(), &[]);
         assert_eq!(iter.next(), None);
         assert_eq!(iter.size_hint(), (0, Some(0)));
+        assert_eq!(iter.as_slice(), &[]);
         assert_eq!(iter.next(), None);
         assert_eq!(iter.size_hint(), (0, Some(0)));
+        assert_eq!(iter.as_slice(), &[]);
     }
 
     #[test]
