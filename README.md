@@ -1,5 +1,7 @@
 A 3-pointer iterator that moves out of a `Vec<T>` or `Box<[T]>`
 
+[Documentation link](https://docs.rs/small_iter)
+
 ## Why?
 
 If you want to iterate and move items out of a `Vec<T>`, you'd normally call
