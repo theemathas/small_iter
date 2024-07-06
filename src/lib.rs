@@ -148,7 +148,10 @@ impl<T> Iterator for IntoSmallIter<T> {
         (len, Some(len))
     }
 
-    // TODO implement other methods
+    #[inline]
+    fn count(self) -> usize {
+        self.elements_len()
+    }
 }
 
 impl<T> ExactSizeIterator for IntoSmallIter<T> {}
