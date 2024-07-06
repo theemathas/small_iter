@@ -2,5 +2,13 @@
 name = "small_iter"
 version = "0.1.0"
 edition = "2021"
+authors = ["Tim (Theemathas) Chirananthavat <theemathas@gmail.com>"]
+description = "A 3-pointer iterator that moves out of a `Vec<T>` or `Box<[T]>`"
+documentation = "https://docs.rs/small_iter"
+readme = "README.md"
+repository = "https://github.com/theemathas/small_iter/"
+license = "MIT"
+keywords = ["iterator", "boxed", "slice", "vec", "memory"]
+categories = ["algorithms", "data-structures", "memory-management", "no-std"]
 
 [dependencies]
