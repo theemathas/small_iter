@@ -17,6 +17,8 @@ trait Sealed {}
 /// Note that for `Vec<T>`, if there is excess capacity in the vector, calling
 /// `into_small_iter` will first shrink the allocation to fit the existing
 /// elements. Depending on the allocator, this may reallocate.
+///
+/// On the other hand, calling `into_small_iter` on a `Box<[T]>` is cheap.
 #[allow(private_bounds)]
 pub trait IntoSmallIterExt: Sealed {
     /// The type of the elements.
