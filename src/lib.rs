@@ -1,12 +1,18 @@
 #![doc = include_str!("../README.md")]
+#![no_std]
 
-use core::slice;
-use std::{
-    fmt::Debug,
+extern crate alloc;
+use alloc::{
+    boxed::Box,
+    fmt::{self, Debug},
+    vec::Vec,
+};
+use core::{
     iter::FusedIterator,
     marker::PhantomData,
     mem::{size_of, ManuallyDrop},
     ptr::{self, NonNull},
+    slice,
 };
 
 trait Sealed {}
@@ -176,7 +182,7 @@ impl<T> ExactSizeIterator for SmallIter<T> {}
 impl<T> FusedIterator for SmallIter<T> {}
 
 impl<T: Debug> Debug for SmallIter<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("IntoSmallIter")
             .field(&self.as_slice())
             .finish()
