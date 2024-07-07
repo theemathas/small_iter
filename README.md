@@ -47,3 +47,11 @@ assert_eq!(iters[0].next(), Some(2));
 assert_eq!(iters[1].next(), Some(4));
 assert_eq!(iters[2].next(), Some(6));
 ```
+
+### Caveat
+
+For `Vec<T>`, if there is excess capacity in the vector, calling
+`into_small_iter` will first shrink the allocation to fit the existing elements.
+Depending on the allocator, this may reallocate.
+
+On the other hand, calling `into_small_iter` on a `Box<[T]>` is cheap.
