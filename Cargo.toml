@@ -12,3 +12,11 @@ keywords = ["iterator", "boxed", "slice", "vec", "memory"]
 categories = ["algorithms", "data-structures", "memory-management", "no-std"]
 
 [dependencies]
+
+[dev-dependencies]
+criterion = "0.5.1"
+thin-vec = "0.2.13"
+
+[[bench]]
+name = "vec_of_iters"
+harness = false
