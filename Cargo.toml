@@ -1,6 +1,6 @@
 [package]
 name = "small_iter"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Tim (Theemathas) Chirananthavat <theemathas@gmail.com>"]
 description = "A 3-pointer iterator that moves out of a `Vec<T>` or `Box<[T]>`"
