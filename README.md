@@ -66,9 +66,9 @@ the second, and so on.
 This workload is performed in three ways:
 * using `SmallIter` (this crate)
   * taking 20.4ms on average
-* using `std::vec::IntoIter`
-  * taking 30.5ms on average
 * using `thin_vec::IntoIter` (from the `thin-vec` crate)
+  * taking 30.5ms on average
+* using `std::vec::IntoIter`
   * taking 21.9ms on average
 
 The source code for the benchmark can be found
