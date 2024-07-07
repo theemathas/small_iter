@@ -74,4 +74,4 @@ This workload is performed in three ways:
 The source code for the benchmark can be found
 [here](https://github.com/theemathas/small_iter/tree/master/benches/vec_of_iters.rs).
 
-![Violin plot of the running times](violin.svg)
+![Violin plot of the running times](https://raw.githubusercontent.com/theemathas/small_iter/master/violin.svg)
