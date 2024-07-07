@@ -55,3 +55,23 @@ For `Vec<T>`, if there is excess capacity in the vector, calling
 Depending on the allocator, this may reallocate.
 
 On the other hand, calling `into_small_iter` on a `Box<[T]>` is cheap.
+
+## Benchmark results
+
+I have benchmarked (on a Macbook Pro 2021) the following workload (which is the
+kind of workload that this crate is intended for): Construct 100,000 iterators,
+each containing 100 `u8`s. Then, get the first element of each iterator, then
+the second, and so on.
+
+This workload is performed in three ways:
+* using `SmallIter` (this crate)
+  * taking 20.4ms on average
+* using `std::vec::IntoIter`
+  * taking 30.5ms on average
+* using `thin_vec::IntoIter` (from the `thin-vec` crate)
+  * taking 21.9ms on average
+
+The source code for the benchmark can be found
+[here](https://github.com/theemathas/small_iter/tree/master/benches/vec_of_iters.rs).
+
+![Violin plot of the running times](violin.svg)
